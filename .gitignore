@@ -1,0 +1,11 @@
+.env
+
+*.jsonl
+
+__pycache__/
+*.pyc
+*.pyo
+
+.vscode/
+
+logs/

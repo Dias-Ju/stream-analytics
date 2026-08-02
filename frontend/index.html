@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamAnalytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<body>
+
+  <!-- Fundo -->
+  <div class="bg-texture"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+  <div class="bg-glow glow-3"></div>
+
+  <!-- Painel de recados -->
+  <aside class="chat-panel">
+    <div class="chat-header">
+      <span class="chat-title">Recados</span>
+      <span class="tag brown">privado</span>
+    </div>
+
+    <div class="chat-messages" id="recados-lista">
+      <div class="empty-state">nenhum recado ainda</div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea
+        id="recado-input"
+        class="chat-textarea"
+        placeholder="escreva um recado..."
+        maxlength="120"
+        rows="2"></textarea>
+
+      <button class="chat-send-btn" onclick="salvarRecado()">
+        enviar
+      </button>
+    </div>
+  </aside>
+
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+
+      <div class="header-left">
+        <span class="eyebrow">
+          kafka · python · mysql
+        </span>
+
+        <h1 class="site-title">
+          Stream<em>Analytics</em>
+        </h1>
+      </div>
+
+      <!-- <div class="header-center">
+        <div class="live-pill">
+          <span class="live-dot"></span>
+          ao vivo
+        </div>
+      </div> -->
+
+    </header>
+
+    <!-- Cards -->
+    <section class="metrics">
+
+      <div class="metric-card dark">
+        <span class="metric-label">total de streams</span>
+        <span class="metric-value" id="total">—</span>
+        <span class="metric-note">recebidos</span>
+      </div>
+
+      <div class="metric-card light">
+        <span class="metric-label">contabilizados</span>
+        <span class="metric-value" id="sucessos">—</span>
+        <span class="metric-note">streams válidos</span>
+      </div>
+
+      <div class="metric-card pink">
+        <span class="metric-label">filtrados</span>
+        <span class="metric-value" id="erros">—</span>
+        <span class="metric-note">enviados à DLQ</span>
+      </div>
+
+      <div class="metric-card blue">
+        <span class="metric-label">taxa filtrada</span>
+        <span class="metric-value" id="taxa">—</span>
+        <span class="metric-note">do total</span>
+      </div>
+
+    </section>
+
+    <!-- Conteúdo principal -->
+    <section class="main-row">
+
+      <!-- Nokia -->
+      <div class="nokia-zone">
+
+        <div class="nokia-wrap">
+
+          <img
+            src="imagens/nokia.png"
+            alt="Nokia"
+            class="nokia-img">
+
+          <div class="nokia-screen-overlay">
+
+            <div class="screen-header">
+              Top músicas
+            </div>
+
+            <div class="screen-list" id="nokia-list">
+              <div class="screen-empty">
+                carregando...
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Coluna direita -->
+      <div class="rankings-zone">
+
+        <!-- Artistas -->
+        <div class="panel">
+
+          <div class="panel-head">
+            <span class="panel-title">
+              Artistas em destaque
+            </span>
+
+            <span class="tag olive">
+              ranking
+            </span>
+          </div>
+
+          <div class="rank-list" id="lista-artistas">
+            <div class="empty-state">
+              carregando...
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Plataformas -->
+        <div class="panel">
+
+          <div class="panel-head">
+            <span class="panel-title">
+              Plataformas
+            </span>
+
+            <span class="tag pink">
+              distribuição
+            </span>
+          </div>
+
+          <div
+            class="platforms-row"
+            id="lista-plataformas">
+
+            <div class="empty-state">
+              carregando...
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Streams -->
+        <section class="bottom-row">
+
+          <!-- Streams recentes -->
+          <div class="panel feed-panel">
+
+            <div class="panel-head">
+              <span class="panel-title">
+                Streams recentes
+              </span>
+
+              <span class="tag olive">
+                ao vivo
+              </span>
+            </div>
+
+            <div
+              class="feed-scroll"
+              id="lista-sucesso">
+
+              <div class="empty-state">
+                nenhum stream ainda
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Streams filtrados -->
+          <div class="panel feed-panel">
+
+            <div class="panel-head">
+              <span class="panel-title">
+                Streams filtrados
+              </span>
+
+              <span class="tag pink">
+                dlq
+              </span>
+            </div>
+
+            <div
+              class="feed-scroll"
+              id="lista-erros">
+
+              <div class="empty-state">
+                nenhum erro ainda
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
