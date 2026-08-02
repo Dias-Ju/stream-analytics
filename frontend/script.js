@@ -214,3 +214,4 @@ async function carregar() {
 
 carregar();
 carregarRecados();
+setInterval(carregar, 10000);

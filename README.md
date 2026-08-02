@@ -4,9 +4,17 @@ Plataforma de análise de streams musicais em tempo real, desenvolvida com Kafka
  
 ## Sobre o projeto
  
-Este projeto nasceu como um estudo prático sobre **replicação de dados e pipelines de mensageria com Kafka** — tecnologia que utilizo no meu dia a dia como Jovem Aprendiz no PagBank. Com o tempo, decidi transformá-lo em algo mais pessoal: um analisador de streams musicais em tempo real, com um dashboard visual inspirado na estética Y2K dos anos 2000.
+Este projeto nasceu como um estudo prático sobre **replicação de dados e pipelines de mensageria com Kafka** — tecnologia que utilizo no meu dia a dia como Jovem Aprendiz no PagBank.
  
-O projeto está em desenvolvimento contínuo e novas funcionalidades serão adicionadas ao longo da minha jornada profissional.
+### Evolução
+ 
+**v1 — Loja de periféricos:** a primeira versão simulava pedidos de uma loja de periféricos (teclados, mouses, monitores) para entender na prática como funciona o fluxo de replicação de dados com Kafka — producer publicando eventos, consumer processando e armazenando, DLQ capturando falhas.
+ 
+**v2 — Testes e aprendizado:** com a base técnica funcionando, o projeto virou um ambiente de testes para explorar conceitos mais avançados: consumer groups, particionamento por chave, retry automático, Kafka Connect e CDC com PostgreSQL.
+ 
+**v3 — StreamAnalytics (versão atual):** decidi transformá-lo em algo com mais a minha cara. Mantive toda a estrutura técnica que aprendi e mudei o contexto para análise de streams musicais, com um dashboard visual inspirado na estética Y2K dos anos 2000. Os arquivos das versões anteriores estão preservados na pasta `old/` do repositório.
+ 
+O projeto está em desenvolvimento contínuo e novas funcionalidades serão adicionadas.
  
 ## Como funciona
  
