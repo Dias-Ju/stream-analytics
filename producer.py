@@ -6,13 +6,13 @@ import json
 producer = Producer({'bootstrap.servers': 'localhost:9092'})
 
 usuarios = [
-    'julia',
-    'ana',
-    'leo',
-    'rafa',
-    'mike',
-    'clara',
-    'nina'
+    'Julia',
+    'Ana',
+    'Leo',
+    'Rafa',
+    'Mike',
+    'Clara',
+    'Nina'
 ]
 
 musicas = [
