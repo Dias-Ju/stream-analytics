@@ -211,6 +211,76 @@ async function carregar() {
   }
 
 }
+async function carregarEvolucao() {
+  try {
+    const r = await fetch(`${BASE}/evolucao`);
+    const lista = await r.json();
+
+    const labels = lista.map(d => d.minuto);
+    const dados = lista.map(d => d.total);
+
+    const ctx = document.getElementById('grafico-evolucao').getContext('2d');
+
+    if (window.graficoEvolucao) {
+      window.graficoEvolucao.data.labels = labels;
+      window.graficoEvolucao.data.datasets[0].data = dados;
+      window.graficoEvolucao.update();
+    } else {
+      window.graficoEvolucao = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'streams por minuto',
+            data: dados,
+            borderColor: '#7FB9B9',
+            backgroundColor: 'rgba(127,185,185,0.1)',
+            borderWidth: 2,
+            pointBackgroundColor: '#D463A1',
+            pointRadius: 4,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                font: { family: 'DM Mono' },
+                color: '#7a6062'
+              },
+              grid: { color: 'rgba(85,67,69,0.08)' }
+            },
+            x: {
+              ticks: {
+                font: { family: 'DM Mono' },
+                color: '#7a6062'
+              },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+  } catch { }
+}
+
+async function carregar() {
+  await Promise.all([
+    carregarResumo(),
+    carregarMusicas(),
+    carregarArtistas(),
+    carregarPlataformas(),
+    carregarStreams(),
+    carregarErros(),
+    carregarEvolucao(),
+  ]);
+}
 
 carregar();
 carregarRecados();

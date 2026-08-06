@@ -115,4 +115,22 @@ def ranking_plataformas():
     db.close()
     return jsonify(lista)
 
+@app.route('/evolucao')
+def evolucao():
+    db = conectar()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT 
+            DATE_FORMAT(data_processamento, '%H:%i') AS minuto,
+            COUNT(*) AS total
+        FROM streams_processados
+        WHERE data_processamento >= NOW() - INTERVAL 30 MINUTE
+        GROUP BY minuto
+        ORDER BY minuto ASC
+    """)
+    lista = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(lista)
+
 app.run(port=5000)
