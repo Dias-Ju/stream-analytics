@@ -137,7 +137,7 @@ async function carregarErros() {
         <span class="feed-icon">⚠</span>
         <div class="feed-body">
           <span class="feed-title">${e.stream_id}</span>
-          <span class="feed-meta">${fmt(e.erro, 30)} · ${e.tentativas} tentativas</span>
+          <span class="feed-meta">${fmt(e.erro, 60)} · ${e.tentativas} tentativas</span>
         </div>
         <span class="feed-time">${timeAgo(e.data_erro)}</span>
       </div>

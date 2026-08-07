@@ -1,10 +1,11 @@
 from confluent_kafka import Consumer, Producer
 import json
-import random
 import time
 import mysql.connector
 from dotenv import load_dotenv
 import os
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -28,25 +29,53 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 TOPICO_DESTINO = 'streams-replicados'
-
 consumer.subscribe(['meu-primeiro-topico'])
 
 MAX_TENTATIVAS = 3
 ESPERA_ENTRE_TENTATIVAS = 2
 
+# histórico pra detecção de bot
+historico_usuario = defaultdict(list)
+historico_repeticao = defaultdict(list)
+
 print("Processando streams musicais em tempo real...")
 print("-" * 60)
 
-def processar_stream(evento):
-    if random.random() < 0.6:
-        raise Exception("Stream identificado como suspeito pela plataforma!")
-    return True
+def detectar_bot(evento):
+    usuario = evento['usuario']
+    musica = evento['musica']
+    duracao = evento['duracao']
+    agora = datetime.now()
 
-def enviar_para_dlq(mensagem, evento, erro):
+    # regra 1: duração muito curta
+    if duracao < 30:
+        return f"Duração suspeita: {duracao}s (mínimo 30s)"
 
+    # regra 2: mesmo usuário + mesma música repetida
+    chave_repeticao = f"{usuario}:{musica}"
+    historico_repeticao[chave_repeticao] = [
+        t for t in historico_repeticao[chave_repeticao]
+        if agora - t < timedelta(minutes=5)
+    ]
+    historico_repeticao[chave_repeticao].append(agora)
+    if len(historico_repeticao[chave_repeticao]) > 3:
+        return f"Repetição suspeita: {musica} reproduzida {len(historico_repeticao[chave_repeticao])}x em 5 minutos"
+
+    # regra 3: volume anormal (muitos streams do mesmo usuário)
+    historico_usuario[usuario] = [
+        t for t in historico_usuario[usuario]
+        if agora - t < timedelta(minutes=1)
+    ]
+    historico_usuario[usuario].append(agora)
+    if len(historico_usuario[usuario]) > 5:
+        return f"Volume anormal: {usuario} enviou {len(historico_usuario[usuario])} streams em 1 minuto"
+
+    return None
+
+def enviar_para_dlq(mensagem, evento, motivo):
     dlq_evento = {
         'stream_original': evento,
-        'erro': str(erro),
+        'erro': motivo,
         'tentativas': MAX_TENTATIVAS
     }
 
@@ -55,108 +84,76 @@ def enviar_para_dlq(mensagem, evento, erro):
         key=mensagem.key(),
         value=json.dumps(dlq_evento).encode('utf-8')
     )
-
     dlq_producer.flush()
 
-    # with open('dlq_streams.jsonl', 'a', encoding='utf-8') as f:
-    #     import os
-
-    #     print("SALVANDO EM:", os.getcwd())
-
-    #     f.write(json.dumps(dlq_evento, ensure_ascii=False) + '\n')
-
     sql = """
-    INSERT INTO streams_dlq
-    (stream_id, erro, tentativas)
+    INSERT INTO streams_dlq (stream_id, erro, tentativas)
     VALUES (%s, %s, %s)
     """
-
-    valores = (
-        evento['stream_id'],
-        str(erro),
-        MAX_TENTATIVAS
-    )
-
-    cursor.execute(sql, valores)
-
+    cursor.execute(sql, (evento['stream_id'], motivo, MAX_TENTATIVAS))
     db.commit()
-
-    print(f"DLQ | {evento['stream_id']} | enviado após {MAX_TENTATIVAS} tentativas")
+    print(f"DLQ | {evento['stream_id']} | {motivo}")
 
 while True:
-
     mensagem = consumer.poll(1.0)
 
     if mensagem is None:
         continue
-
     if mensagem.error():
         print(f"Erro Kafka: {mensagem.error()}")
         continue
 
     evento = json.loads(mensagem.value().decode('utf-8'))
 
+    # detecta bot
+    motivo_bot = detectar_bot(evento)
+
+    if motivo_bot:
+        enviar_para_dlq(mensagem, evento, motivo_bot)
+        consumer.commit(mensagem)
+        print("-" * 60)
+        continue
+
+    # processa normalmente com retry
     sucesso = False
     ultimo_erro = None
 
     for tentativa in range(1, MAX_TENTATIVAS + 1):
-
         try:
-            processar_stream(evento)
-
             sucesso = True
-
             break
-
         except Exception as e:
-
             ultimo_erro = e
-
             print(f"Tentativa {tentativa}/{MAX_TENTATIVAS} | {evento['stream_id']} | {e}")
-
             if tentativa < MAX_TENTATIVAS:
                 time.sleep(ESPERA_ENTRE_TENTATIVAS)
 
     if sucesso:
-
         replica_producer.produce(
             TOPICO_DESTINO,
             key=mensagem.key(),
             value=mensagem.value()
         )
-
         replica_producer.flush()
-
-        # with open('streams_processados.jsonl', 'a', encoding='utf-8') as f:
-        #     f.write(json.dumps(evento, ensure_ascii=False) + '\n')
 
         sql = """
         INSERT INTO streams_processados
         (stream_id, usuario, musica, artista, plataforma, duracao)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
-
-        valores = (
+        cursor.execute(sql, (
             evento['stream_id'],
             evento['usuario'],
             evento['musica'],
             evento['artista'],
             evento['plataforma'],
             evento['duracao']
-        )
-
-        cursor.execute(sql, valores)
-
+        ))
         db.commit()
-
         consumer.commit(mensagem)
-
-        print(f"✅ Processado | {evento['stream_id']} | {evento['musica']} | {evento['artista']} | REPLICADO | SALVO")
-
+        print(f"Processado | {evento['stream_id']} | {evento['musica']} | {evento['artista']}")
     else:
-
-        enviar_para_dlq(mensagem, evento, ultimo_erro)
-
+        enviar_para_dlq(mensagem, evento, str(ultimo_erro))
         consumer.commit(mensagem)
 
     print("-" * 60)
