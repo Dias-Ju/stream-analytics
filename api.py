@@ -132,5 +132,32 @@ def evolucao():
     cursor.close()
     db.close()
     return jsonify(lista)
+@app.route('/ranking/artistas/<periodo>')
+def ranking_artistas_periodo(periodo):
+    db = conectar()
+    cursor = db.cursor(dictionary=True)
+
+    if periodo == 'hoje':
+        filtro = "WHERE DATE(data_processamento) = CURDATE()"
+    elif periodo == 'semana':
+        filtro = "WHERE data_processamento >= NOW() - INTERVAL 7 DAY"
+    else:
+        filtro = ""
+
+    cursor.execute(f"""
+        SELECT
+            artista,
+            COUNT(*) AS total
+        FROM streams_processados
+        {filtro}
+        GROUP BY artista
+        ORDER BY total DESC
+        LIMIT 5
+    """)
+
+    lista = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(lista)
 
 app.run(port=5000)
