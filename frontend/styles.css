@@ -714,3 +714,43 @@ body {
   .nokia-img { width: 280px; }
   .site-title { font-size: 34px; }
 }
+
+/* ── BOTTOM EXTRA ─────────────────────────────────────── */
+
+.bottom-extra {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.periodo-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.periodo-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-coffee);
+  background: transparent;
+  color: var(--coffee-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.periodo-btn:hover {
+  background: var(--sugar);
+  color: var(--coffee-dark);
+}
+
+.periodo-btn.active {
+  background: var(--seafoam);
+  color: #fff;
+  border-color: transparent;
+}

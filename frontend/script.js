@@ -279,7 +279,47 @@ async function carregar() {
     carregarStreams(),
     carregarErros(),
     carregarEvolucao(),
+    carregarRankingPeriodo(periodoAtivo),
   ]);
+}
+
+let periodoAtivo = 'hoje';
+
+async function carregarRankingPeriodo(periodo) {
+  try {
+    const r = await fetch(`${BASE}/ranking/artistas/${periodo}`);
+    const lista = await r.json();
+    const el = document.getElementById('lista-periodo');
+    if (!lista.length) {
+      el.innerHTML = '<div class="empty-state">sem dados ainda</div>';
+      return;
+    }
+    const max = lista[0]?.total || 1;
+    el.innerHTML = lista.map((a, i) => `
+      <div class="rank-item">
+        <span class="rank-num ${i < 3 ? 'rank-num--top' : ''}">${i + 1}</span>
+        <div class="rank-info">
+          <span class="rank-name">${a.artista}</span>
+          <span class="rank-sub">${a.total} reproduções</span>
+        </div>
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${Math.round((a.total / max) * 100)}%"></div>
+        </div>
+        <span class="rank-count">${a.total}</span>
+      </div>
+    `).join('');
+  } catch {
+    document.getElementById('lista-periodo').innerHTML =
+      '<div class="empty-state">api offline</div>';
+  }
+}
+
+function mudarPeriodo(periodo) {
+  periodoAtivo = periodo;
+  document.querySelectorAll('.periodo-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === periodo);
+  });
+  carregarRankingPeriodo(periodo);
 }
 
 carregar();

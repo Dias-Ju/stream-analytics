@@ -215,16 +215,35 @@
 
     </section>
 
-    <!-- Gráfico de evolução -->
-    <section class="panel" style="margin-top: 16px;">
-      <div class="panel-head">
-        <span class="panel-title">Evolução de streams</span>
-        <span class="tag olive">últimos 30 min</span>
-      </div>
-      <canvas id="grafico-evolucao" height="80"></canvas>
-    </section>
+<!-- Linha inferior: gráfico + ranking por período -->
+<div class="bottom-extra">
 
-  </div>
+  <!-- Gráfico de evolução -->
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Evolução de streams</span>
+      <span class="tag olive">últimos 30 min</span>
+    </div>
+    <canvas id="grafico-evolucao" height="100"></canvas>
+  </section>
+
+  <!-- Ranking por período -->
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Ranking por período</span>
+      <span class="tag pink">artistas</span>
+    </div>
+    <div class="periodo-tabs">
+      <button class="periodo-btn active" onclick="mudarPeriodo('hoje')">Hoje</button>
+      <button class="periodo-btn" onclick="mudarPeriodo('semana')">Semana</button>
+      <button class="periodo-btn" onclick="mudarPeriodo('total')">Total</button>
+    </div>
+    <div class="rank-list" id="lista-periodo">
+      <div class="empty-state">carregando...</div>
+    </div>
+  </section>
+
+</div>
 
   <script src="script.js"></script>
 
